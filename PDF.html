@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI PDF Chat</title>
+</head>
+<body>
+  <h1>Upload PDF and Chat with AI</h1>
+  <input type="file" id="pdf-upload" accept="application/pdf">
+  <button onclick="uploadPDF()">Upload PDF</button>
+  
+  <div id="chat-section">
+    <input type="text" id="question" placeholder="Ask a question...">
+    <button onclick="askQuestion()">Ask</button>
+    <div id="response"></div>
+  </div>
+
+  <script>
+    let filename = "";
+
+    async function uploadPDF() {
+      const fileInput = document.getElementById('pdf-upload');
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+
+      const response = await fetch('/upload_pdf/', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const result = await response.json();
+      filename = result.filename;
+      alert("PDF uploaded successfully: " + filename);
+    }
+
+    async function askQuestion() {
+      const question = document.getElementById('question').value;
+
+      const response = await fetch('/ask_question/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          question: question,
+          filename: filename
+        })
+      });
+      
+      const result = await response.json();
+      document.getElementById('response').innerText = "Answer: " + result.answer;
+    }
+  </script>
+</body>
+</html>
